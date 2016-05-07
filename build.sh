@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-set -x
+
 start_dir="$PWD"
 
 ref_output_dir="$PWD/doc"
@@ -71,4 +71,3 @@ cd "$start_dir"
 
 echo $(ls -al "$ref_output_dir/$ref_output_file.info")
 echo DONE.
-set +x

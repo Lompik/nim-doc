@@ -38,8 +38,8 @@ cache:
     - nre
 
 before_script:
-  - export PATH="nim-0.13.0/bin${PATH:+:$PATH}"
-  - export PATH="texinfo/bin${PATH:+:$PATH}"
+  - export PATH="$PWD/nim-0.13.0/bin${PATH:+:$PATH}"
+  - export PATH="$PWD/texinfo/bin${PATH:+:$PATH}"
 
 env:
   - texinfo_version=6.0 nim_version=0.13.0
