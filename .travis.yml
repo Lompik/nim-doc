@@ -41,7 +41,7 @@ before_script:
   - export PATH="nim-0.13.0/bin${PATH:+:$PATH}"
 
 env:
-  - texinfo_version=6.0 texinfo_bin_path="/home/travis/texinfo-$texinfo_version/tp" nre_lib_path="/home/travis/nre/src" nim_version=0.13.0 nim_bin_path="/home/travis/nim-$nim_version/bin" nim_lib_path="/home/travis/nim-$nim_version/lib" ref_output_dir=~/doc ref_output_file=nim-ref-$nim_version
+  - texinfo_version=6.0 texinfo_bin_path="/home/travis/texinfo-$texinfo_version/tp" nre_lib_path="/home/travis/nre/src" nim_version=0.13.0 nim_bin_path="/home/travis/nim-$nim_version/bin" nim_lib_path="/home/travis/nim-$nim_version/lib"
 
 matrix:
   fast_finish: true
