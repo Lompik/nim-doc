@@ -18,7 +18,8 @@ then
     nim_bin_path=${nim_bin_path:-"$travis_build_home/nim-$nim_version/bin"}
     nim_lib_path=${nim_lib_path:-"$travis_build_home/nim-$nim_version/lib"}
     makeinfo=${makeinfo:-$texinfo_bin_path/texi2any} # old makeinfos output errors
-    echo "path:$nre_lib_path/nre/src" > nim.cfg # workaround for -p with abs path
+    echo "path:$nre_lib_path" > nim.cfg # workaround for -p with abs path
+    cat nim.cfg
 fi
 
 if ! type nim &> /dev/null  # outside of travis, allow customization
