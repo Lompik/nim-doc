@@ -15,13 +15,14 @@ install:
         ./koch boot -d:release
         cd ..
     fi
-    if [[ ! -e "texinfo-$texinfo_version/tp/texi2any" ]]
+    if [[ ! -e "texinfo/bin/makeinfo" ]]
        #Build makeinfo if doesnt exist
     then
         curl -sSL -O "http://ftp.gnu.org/gnu/texinfo/texinfo-$texinfo_version.tar.gz"
         tar xvzf texinfo-$texinfo_version.tar.gz
+        [[ ! -d texinfo ]] && mkdir texinfo
         cd texinfo-$texinfo_version
-        ./configure && make -j2
+        ./configure --prefix=$PWD/../texinfo && make -j2
         cd ..
     fi
     if [[ ! -e "nre/src/nre.nim" ]]
@@ -33,11 +34,12 @@ install:
 cache:
   directories:
     - nim-0.13.0
-    - texinfo-6.0
+    - texinfo
     - nre
 
 before_script:
   - export PATH="nim-0.13.0/bin${PATH:+:$PATH}"
+  - export PATH="texinfo/bin${PATH:+:$PATH}"
 
 env:
   - texinfo_version=6.0 nim_version=0.13.0

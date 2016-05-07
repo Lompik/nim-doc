@@ -1,13 +1,11 @@
 #!/bin/bash
 
 set -e
-
+set -x
 start_dir="$PWD"
 
 ref_output_dir="$PWD/doc"
 ref_output_file=nim-ref-$nim_version
-
-makeinfo=makeinfo
 
 # setup for travis
 if [[ ! -z ${TRAVIS+x} ]]
@@ -17,14 +15,18 @@ then
     nre_lib_path=${nre_lib_path:-"$travis_build_home/nre/src"}
     nim_bin_path=${nim_bin_path:-"$travis_build_home/nim-$nim_version/bin"}
     nim_lib_path=${nim_lib_path:-"$travis_build_home/nim-$nim_version/lib"}
-    makeinfo=$texinfo_bin_path/texi2any # old makeinfos output errors
     echo "path:\"$nre_lib_path\"" > nim.cfg # workaround for -p with abs path
 fi
 
 if ! type nim &> /dev/null  # outside of travis, allow customization
 then
-    echo "hello"
     export PATH=$PATH:"$nim_bin_path"
+fi
+
+if ! type makeinfo &> /dev/null  # outside of travis, allow customization
+then
+    echo "Error: (recent) makeinfo [package texinfo] required"
+    exit 1
 fi
 
 
@@ -63,9 +65,10 @@ echo "Building the texi/info docs"
 
 cd "$ref_output_dir"
 "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
-$makeinfo --no-split $ref_output_file.texi
+makeinfo --no-split $ref_output_file.texi
 gzip $ref_output_file.info
 cd "$start_dir"
 
 echo $(ls -al "$ref_output_dir/$ref_output_file.info")
 echo DONE.
+set +x
