@@ -29,7 +29,7 @@ fi
 
 if [[ ! -z ${TRAVIS+x} ]]
 then
-    $makeinfo=$texinfo_bin_path/texi2any # old makeinfos output errors
+    makeinfo=$texinfo_bin_path/texi2any # old makeinfos output errors
     echo 'path:"/home/travis/nre/src"' > nim.cfg # workaround for -p with abs path
 fi
 
