@@ -40,7 +40,7 @@ before_script:
   - export PATH="nim-0.13.0/bin${PATH:+:$PATH}"
 
 env:
-  - texinfo_version=6.0 travis_build_home="/home/travis/build/Lompik/nim-doc" texinfo_bin_path="$travis_build_home/texinfo-$texinfo_version/tp" nre_lib_path="$travis_build_home/nre/src" nim_version=0.13.0 nim_bin_path="$travis_build_home/nim-$nim_version/bin" nim_lib_path="$travis_build_home/nim-$nim_version/lib"
+  - texinfo_version=6.0 nim_version=0.13.0
 
 matrix:
   fast_finish: true
