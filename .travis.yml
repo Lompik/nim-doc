@@ -4,7 +4,7 @@ sudo: no
 
 install:
   - |
-    if [[ ! -e "nim-$nim_version/nim" ]]
+    if [[ ! -e "nim-$nim_version/bin/nim" ]]
        #Build nim if it doesnt exist
     then
         curl -sSL -O "http://nim-lang.org/download/nim-$nim_version.tar.xz"
@@ -15,7 +15,7 @@ install:
         ./koch boot -d:release
         cd ..
     fi
-    if [[ ! -e "texinfo-$texinfo_version/texi2any" ]]
+    if [[ ! -e "texinfo-$texinfo_version/tp/texi2any" ]]
        #Build makeinfo if doesnt exist
     then
         curl -sSL -O "http://ftp.gnu.org/gnu/texinfo/texinfo-$texinfo_version.tar.gz"
