@@ -21,8 +21,9 @@ then
     echo 'path:"$nre_lib_path/nre/src"' > nim.cfg # workaround for -p with abs path
 fi
 
-if [ ! type nim &> /dev/null ] # outside of travis, allow customization
+if ! type nim &> /dev/null  # outside of travis, allow customization
 then
+    echo "hello"
     export PATH=$PATH:"$nim_bin_path"
 fi
 
