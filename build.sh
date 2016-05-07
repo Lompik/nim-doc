@@ -48,7 +48,7 @@ set -e
 
 if [[ -e "$ref_output_dir/$ref_output_file.info" ]]
 then
-    rm "$ref_output_dir/$ref_output_file*"
+    rm "$ref_output_dir/$ref_output_file.info"
 elif [[ ! -d "$ref_output_dir" ]]
 then
     mkdir "$ref_output_dir" ;
@@ -62,4 +62,5 @@ $makeinfo --no-split $ref_output_file.texi
 gzip $ref_output_file.info
 cd "$start_dir"
 
+echo $(ls -al "$ref_output_dir/$ref_output_file.info")
 echo DONE.
