@@ -22,7 +22,7 @@ install:
         tar xvzf texinfo-$texinfo_version.tar.gz
         [[ ! -d texinfo ]] && mkdir texinfo
         cd texinfo-$texinfo_version
-        ./configure --prefix=$PWD/../texinfo && make -j2
+        ./configure --prefix=$PWD/../texinfo && make -j2 && make install
         cd ..
     fi
     if [[ ! -e "nre/src/nre.nim" ]]
