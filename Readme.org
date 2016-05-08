@@ -1,0 +1,47 @@
+#+TITLE: Collection of nim docs in various format
+
+For now, a reference (all functions and variable with description)
+manual and the technical manual in org-mode format from
+(doc/manual/*.txt) is available in this repo.
+
+Install the manual with ~sudo cp doc/nimref-$version.info.gz
+/usr/share/info/nim-ref.info.gz~ or read the technical manual
+"doc/manual.org".
+
+* why
+
+I used to browse nim's documentation online but got tired of that
+workflow, too many opened tabs. I got used to browsing info (or [[http://orgmode.org/][org-mode]]) manuals in
+=emacs= and also with the =info= command. It's much more flexible and
+worth a learn. What you get is searchable manual with functions and
+variables index.
+
+Example:
+[[file:Pictures/2016-05-08-09:38:56_1620x360+0+1051.png]]
+
+* how
+** Requirements for build
+   - [[http://pandoc.org/index.html][pandoc]]
+   - recent version of texinfo
+   - writable nim's lib folder ( set =nim_lib_path=/path/to/copy=)
+
+** reference manual
+The scripts for generating the doc is included as I tried to make
+reproducible for future builds. I am not familiar =texinfo= but recent
+versions helped to cope with that. The info manual will not build with
+version 4 for example.
+Fortunately nim documentation is mostly based on text format so that
+we are able to convert .nim -> .json -> .texi -> .info.gz .
+
+** technical manual
+
+=pandoc='s output was not satisfactory as nim's uses a custom =rst=
+format. I've been using nim's own rst parser and adapter the rst
+generator to a org generator.
+
+* todo
+
+  - [ ] create different index for iterators, macros, etc
+  - [ ] reduce =pandoc= usage by modifying =nim jsondoc= code
+  - [ ] better texi file templating
+  - [ ] handle ~idx~ references
