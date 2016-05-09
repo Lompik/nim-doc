@@ -65,9 +65,9 @@ echo "Building the texi/info docs"
 
 cd "$ref_output_dir"
 "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
-makeinfo --no-split $ref_output_file.texi
+makeinfo --no-split $ref_output_file.texi &> /dev/null
 gzip $ref_output_file.info
 cd "$start_dir"
 
-echo $(ls -al "$ref_output_dir/$ref_output_file.info")
+echo $(ls -al "$ref_output_dir/$ref_output_file.info.gz")
 echo DONE.
