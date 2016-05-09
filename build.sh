@@ -53,9 +53,9 @@ do
 done
 set -e
 
-if [[ -e "$ref_output_dir/$ref_output_file.info" ]]
+if [[ -e "$ref_output_dir/$ref_output_file.info.gz" ]]
 then
-    rm "$ref_output_dir/$ref_output_file.info"
+    rm "$ref_output_dir/$ref_output_file"*
 elif [[ ! -d "$ref_output_dir" ]]
 then
     mkdir "$ref_output_dir" ;
