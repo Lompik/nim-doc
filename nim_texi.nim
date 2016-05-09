@@ -23,7 +23,7 @@ proc texize(txt:string):string=
   txt.replace("@", "@@").replace("}","@}").replace("{","@{")
 
 
-var  tmpname = "/tmp/516516156161"
+var  tmpname = getTempDir().joinPath("jjjjjiiii516516156161")
 proc parse_symb_json(n_json:JsonNode, module:string)=
   symbols=symbols_empty
   for i in countUp(0,n_json.len- 1):
