@@ -9,11 +9,11 @@ type symbol_type = enum
   skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter
 var symbols, symbols_empty = {
   "skConst": (skConst,"@vindex","","Constant variables"),
-  "skIterator": (skIterator,"@findex","","Iterators"),
+  "skIterator": (skIterator,"@itindex","","Iterators"),
   "skLet": (skLet,"@vindex","","Let variable"),
   "skProc": (skProc,"@findex","","Procedures"),
   "skTemplate": (skTemplate,"@findex","","Templates"),
-  "skType": (skType,"@vindex","","Types"),
+  "skType": (skType,"@tindex","","Types"),
   "skMacro": (skMacro,"@findex","","Macros"),
   "skConverter": (skConverter,"@findex","","Converter"),
   "skMethod": (skConverter,"@findex","","Methods"),
@@ -88,14 +88,17 @@ $2
 @node Top
 @top Nim info Manual
 @end ifnottex
+@defindex it
 
 @menu
 """
   echo modules.join("")
   echo """
 
-* Command and Function Index:: Functions
-* Variable Index:: variables
+* Function Index:: Procedures, Macros and Templates
+* Iterator Index:: Iterators
+* Variable Index:: Variables
+* Type Index:: Types
 @end menu
 
 hello!
@@ -103,19 +106,25 @@ hello!
   echo chapters
 
   echo """
-@node Command and Function Index
-@unnumbered Command and function index
+@node Function Index
+@unnumbered Function index
 
 @printindex fn
+
+@node Iterator Index
+@unnumbered Iterator index
+
+@printindex it
 
 @node Variable Index
 @unnumbered Variable index
 
-This is not a complete index of variables and faces, only the ones that are
-mentioned in the manual.  For a more complete list, use @kbd{M-x
-org-customize @key{RET}} and then click yourself through the tree.
-
 @printindex vr
+
+@node Type Index
+@unnumbered Type index
+
+@printindex tp
 
 """
 Main()
