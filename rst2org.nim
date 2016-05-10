@@ -326,10 +326,10 @@ when(isMainModule):
   echo "------" & "\n" & resultP
 
   for file in notParsed:
-      echo execProcess( @[joinPath(os.getAppdir(),"post_pandoc"), file].join(" "),@[] )
+      echo execProcess( @[joinPath(os.getAppdir(),"pandoc_proc"), file].join(" "),@[] )
 
 # Local Variables:
-# firestarter: "nim c -d:release rst2org.nim || notify-send -u low 'nim' 'compile error on rst2org.nim'"
+# firestarter: "nim c -d:release %f || notify-send -u low 'nim' 'compile error on %f'"
 # End:
 
 

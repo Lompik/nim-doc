@@ -33,5 +33,5 @@ for file in arguments:
 
 
 # Local Variables:
-# firestarter: "nim c -d:release post_pandoc.nim || notify-send -u low 'nim' 'compile error on post_pandoc.nim'"
+# firestarter: "nim c -d:release %f || notify-send -u low 'nim' 'compile error on %f'"
 # End:
