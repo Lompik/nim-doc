@@ -62,11 +62,14 @@ proc Main()=
     if ext != ".json":
       continue
     var n_json = json.parseFile(file)
+    if len(n_json) == 0:
+      continue
     var mod1 = mpath.split(json_dir)
     module = mod1[mod1.len - 1] & "/" & module
     modulei.add(module)
     modules.add("* " & module & "::\n")
     chapters &= "\n@node $1\n" % module
+
     parse_symb_json(n_json, module)
     for stype in symbols.keys:
       if symbols[stype][2] != "":
@@ -117,5 +120,5 @@ org-customize @key{RET}} and then click yourself through the tree.
 """
 Main()
 # Local Variables:
-# firestarter: "nim c -d:release nim_texi.nim || notify-send -u low 'nim' 'compile error on nim_texi.nim'"
+# firestarter: "nim c -d:release %f || notify-send -u low 'nim' 'compile error on %f'"
 # End:
