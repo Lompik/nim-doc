@@ -19,8 +19,21 @@ var symbols, symbols_empty = {
   "skMethod": (skConverter,"@findex","","Methods"),
   "skVar": (skVar,"@vindex","","Variables")}.totable
 
+let htmlcodes : seq[tuple[utf8:string, code:string]]=
+  @[("<", "&lt;"),
+    (">", "&gt;"),
+    ("&", "&amp;"),
+    ("\"", "&quot;"),
+    ("\'", "&#x27;"),
+    ("/", "&#x2F;")]
+
+
 proc texize(txt:string):string=
-  txt.replace("@", "@@").replace("}","@}").replace("{","@{")
+  result=txt
+  if txt[0] in @[ '`' , '\''] or txt.find("&") != -1:
+    for htmlcode in htmlcodes:
+     result = result.replace(htmlcode.code,htmlcode.utf8)
+  result=result.replace("@", "@@").replace("}","@}").replace("{","@{")
 
 
 var  tmpname = getTempDir().joinPath("jjjjjiiii516516156161")
@@ -81,9 +94,19 @@ $2
 @end itemize
 """ % [symbols[stype][3], symbols[stype][2]]
 
-    chapters &= @[symbols["skConst"][2], symbols["skLet"][2], symbols["skVar"][2], symbols["skType"][2],   symbols["skProc"][2], symbols["skTemplate"][2],symbols["skMacro"][2],symbols["skConverter"][2],symbols["skMethod"][2],symbols["skIterator"][2]].join("\n")
+    chapters &= @[symbols["skConst"][2],
+                  symbols["skLet"][2],
+                  symbols["skVar"][2],
+                  symbols["skType"][2],
+                  symbols["skProc"][2],
+                  symbols["skTemplate"][2],
+                  symbols["skMacro"][2],
+                  symbols["skConverter"][2],
+                  symbols["skMethod"][2],
+                  symbols["skIterator"][2]].join("\n")
 
-  echo """@settitle The Nim Manual
+
+  echo """@settitle The Nim Reference Manual
 @ifnottex
 @node Top
 @top Nim info Manual
@@ -128,6 +151,7 @@ hello!
 
 """
 Main()
+
 # Local Variables:
 # firestarter: "nim c -d:release %f || notify-send -u low 'nim' 'compile error on %f'"
 # End:
