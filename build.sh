@@ -40,7 +40,6 @@ then
     nim_lib_path=$(grep 'lib$' <(nim dump 2>&1))
 fi
 
-ulimit -n 3000
 
 echo "building json -> texi converter"
 nim c nim_texi.nim

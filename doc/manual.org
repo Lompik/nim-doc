@@ -4413,9 +4413,13 @@ var info = toSeq(something())
 The problem here is that the compiler already decided that ~something()~ as an iterator is not callable in this context before ~toSeq~ gets its chance to convert it into a sequence.
 * Macros
 
-A macro is a special kind of low level template. Macros can be used to implement `domain specific languages`:idx:. Like templates, macros come in the 2 flavors *immediate* and *ordinary*.
+A macro is a special kind of low level template. Macros can be used to
+implement `domain specific languages`:idx:. Like templates, macros
+come in the 2 flavors *immediate* and *ordinary*.
 
-While macros enable advanced compile-time code transformations, they cannot change Nim's syntax. However, this is no real restriction because Nim's syntax is flexible enough anyway.
+While macros enable advanced compile-time code transformations, they
+cannot change Nim's syntax. However, this is no real restriction
+because Nim's syntax is flexible enough anyway.
 
 To write macros, one needs to know how the Nim concrete syntax is converted to an abstract syntax tree.
 
@@ -4637,7 +4641,9 @@ A subrange type has the same size as its base type (~int~ in the example).
 
 Nim requires `interval arithmetic`:idx: for subrange types over a set of built-in operators that involve constants: ~x %% 3~ is of type ~range[0..2]~. The following built-in operators for integers are affected by this rule: ~-~, ~+~, ~*~, ~min~, ~max~, ~succ~, ~pred~, ~mod~, ~div~, ~%%~, ~and~ (bitwise ~and~).
 
-Bitwise ~and~ only produces a ~range~ if one of its operands is a constant *x* so that (x+1) is a number of two. (Bitwise ~and~ is then a ~%%~ operation.)
+Bitwise ~and~ only produces a ~range~ if one of its operands is a
+constant *x* so that (x+1) is a number of two. (Bitwise ~and~ is then
+a ~%%~ operation.)
 
 This means that the following code is accepted:
 

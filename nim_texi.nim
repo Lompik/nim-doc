@@ -4,6 +4,7 @@ import os
 import osproc
 import nre
 import tables
+import posix
 
 type symbol_type = enum
   skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter
@@ -35,9 +36,21 @@ proc texize(txt:string):string=
      result = result.replace(htmlcode.code,htmlcode.utf8)
   result=result.replace("@", "@@").replace("}","@}").replace("{","@{")
 
+proc check_posix(c:auto, fr:PFrame=nil)=
+  if c == -1:
+    if fr != nil:
+      writestackTrace()
+      echo "Error in Posix call at line: " & $fr.line
+      quit 1
+    else:
+      echo "Error in Posix call at line: "
+      quit 1
 
-var  tmpname = getTempDir().joinPath("jjjjjiiii516516156161")
 proc parse_symb_json(n_json:JsonNode, module:string)=
+  var  tmpname = getTempDir().joinPath("jjjjjiiii516516156161")
+  var tmpfile = posix.open(tmpname, posix.O_RDWR or posix.O_CREAT, posix.S_IRWXU)
+  check_posix(tmpfile)
+
   symbols=symbols_empty
   for i in countUp(0,n_json.len- 1):
     var output="\n\n"
@@ -55,15 +68,16 @@ $1
   """ % n_json[i]["code"].str.texize
 
 
-    if(n_json[i].haskey("description")):
-      writeFile(tmpname,n_json[i]["description"].str)
+    if(n_json[i].haskey("description") and n_json[i]["description"].str.strip != ""):
+      check_posix(tmpfile.ftruncate(0))
+      check_posix(posix.write(tmpfile,addr n_json[i]["description"].str[0], n_json[i]["description"].str.len))
       output &= execProcess( @["/usr/bin/pandoc","-f","html","-t","texinfo", tmpname].join(" "),
                         @[] ).replace("@node Top","").replace("@top Top","").replace(re"@ref{.*?,(.*?)}","\1")
-      tmpname.removeFile()
-      discard system.open(tmpname, fmWrite)
-
     #let id = (symbols[stype])[0]
     symbols[stype][2] = symbols[stype][2] & output
+  discard tmpfile.close()
+  tmpname.removeFile()
+
 
 proc Main()=
   var chapters = ""
@@ -84,6 +98,7 @@ proc Main()=
     chapters &= "\n@node $1\n" % module
 
     parse_symb_json(n_json, module)
+
     for stype in symbols.keys:
       if symbols[stype][2] != "":
          symbols[stype][2] ="""
