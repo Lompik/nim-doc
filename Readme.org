@@ -22,16 +22,15 @@ Example:
 * how
 ** Requirements for build
    - [[http://pandoc.org/index.html][pandoc]]
-   - recent version of texinfo
+   - [[https://www.gnu.org/software/texinfo/][texinfo]]
    - writable nim's lib folder ( set =nim_lib_path=/path/to/copy=)
 
 ** reference manual
 The scripts for generating the doc is included as I tried to make
-reproducible for future builds. I am not familiar =texinfo= but recent
-versions helped to cope with that. The info manual will not build with
-version 4 for example.
-Fortunately nim documentation is mostly based on text format so that
-we are able to convert .nim -> .json -> .texi -> .info.gz .
+reproducible for future builds.The info manual will not build with
+version 4 for example.Fortunately nim documentation is mostly based on
+text format so that we are able to convert .nim -> .json -> .texi ->
+.info.gz .
 
 ** technical manual
 

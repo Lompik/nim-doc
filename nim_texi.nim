@@ -3,11 +3,16 @@ import strutils
 import os
 import osproc
 import nre
+import options
 import tables
 import posix
 
 type symbol_type = enum
   skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter
+
+let indexv= @["Variable", "Type", "Function", "Iterator"]
+let index_type = {"Variable": ("@vindex","vr"), "Function": ("@findex","fn"), "Iterator": ("@itindex","it"), "Type":("@tpindex", "tp")}.totable
+
 var symbols, symbols_empty = {
   "skConst": (skConst,"@vindex","","Constant variables"),
   "skIterator": (skIterator,"@itindex","","Iterators"),
@@ -78,12 +83,15 @@ $1
   discard tmpfile.close()
   tmpname.removeFile()
 
+let anchor = ""
+let anchorre = re" (?<index>\d+)"
 
 proc Main()=
   var chapters = ""
   var modules : seq[string] = @[]
   var modulei : seq[string] = @[]
   var json_dir = commandLineParams()[0]
+  var i = -1
   for file in walkDirRec(json_dir ):
     var (mpath, module, ext) = splitFile(file)
     if ext != ".json":
@@ -91,11 +99,12 @@ proc Main()=
     var n_json = json.parseFile(file)
     if len(n_json) == 0:
       continue
+    i+=1
     var mod1 = mpath.split(json_dir)
     module = mod1[mod1.len - 1] & "/" & module
     modulei.add(module)
     modules.add("* " & module & "::\n")
-    chapters &= "\n@node $1\n" % module
+    chapters &= "\n@node $1, $2 $3\n" % [module, anchor, $i]
 
     parse_symb_json(n_json, module)
 
@@ -120,7 +129,15 @@ $2
                   symbols["skMethod"][2],
                   symbols["skIterator"][2]].join("\n")
 
-
+  proc update_node(match: RegexMatch):string=
+    let id = match.captures["index"].parseInt
+    if id == 0:
+      result = modulei[id+1] & " , Top, Top"
+    elif id == modulei.len-1:
+      result = indexv[0] & " Index, " & modulei[id-1] & ", Top"
+    else:
+      result = modulei[id+1] & " , " & modulei[id-1] & ", Top"
+  chapters=chapters.replace(anchorre,update_node)
   echo """@settitle The Nim Reference Manual
 @ifnottex
 @node Top
@@ -143,28 +160,25 @@ hello!
 """
   echo chapters
 
-  echo """
-@node Function Index
-@unnumbered Function index
+  for index, key in indexv.pairs:
+    var prev =""
+    var next =""
+    if(index==0):
+      prev=modulei[modulei.len-1]
+      next=indexv[index+1]& " Index"
+    elif(index == indexv.len - 1):
+      prev=indexv[index-1]& " Index"
+      next=""
+    else:
+      prev=indexv[index - 1]& " Index"
+      next=indexv[index + 1]& " Index"
+    echo """
+@node $1 Index, $3, $4, Top
+@unnumbered $1 Index
 
-@printindex fn
+@printindex $2
 
-@node Iterator Index
-@unnumbered Iterator index
-
-@printindex it
-
-@node Variable Index
-@unnumbered Variable index
-
-@printindex vr
-
-@node Type Index
-@unnumbered Type index
-
-@printindex tp
-
-"""
+""" % [key, index_type[key][1], next, prev]
 Main()
 
 # Local Variables:
