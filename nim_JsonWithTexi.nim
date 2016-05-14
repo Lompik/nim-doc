@@ -26,7 +26,10 @@ import packages/docutils/rstgen
 import packages/docutils/rstast
 import packages/docutils/rst
 
-import os, osproc, strutils, strtabs, times, json
+import os, osproc, strutils, strtabs, times, json, sequtils
+
+proc strip_string(s:string):string=
+  strip(s)
 
 
 proc isVisible(n: PNode): bool =
@@ -42,6 +45,64 @@ proc isVisible(n: PNode): bool =
     result = {sfExported, sfFromGeneric, sfForward}*n.sym.flags == {sfExported}
   elif n.kind == nkPragmaExpr:
     result = isVisible(n.sons[0])
+
+proc renderRstToTexi*(d: PDoc, n: PRstNode, result: var string)
+
+proc renderAux(d: PDoc, n: PRstNode, result: var string) =
+  for i in countup(0, len(n)-1): renderRstToTexi(d, n.sons[i], result)
+
+proc renderAux(d: PDoc, n: PRstNode, frmtA, frmtB, frmtC: string, result: var string) =
+  var tmp = ""
+  for i in countup(0, len(n)-1): renderRstToTexi(d, n.sons[i], tmp)
+  result.addf(frmtC, [tmp])
+
+proc renderAux(d: PDoc, n: PRstNode, frmtA, frmtB: string, result: var string) =
+  var tmp = ""
+  for i in countup(0, len(n)-1): renderRstToTexi(d, n.sons[i], tmp)
+  if d.target != outLatex:
+    result.addf(frmtA, [tmp])
+  else:
+    result.addf(frmtB, [tmp])
+
+proc addTexiChar(dest: var string, c: char) =
+  case c
+  of '@': add(dest, "@@")
+  of '{': add(dest, "@{")
+  of '}': add(dest, "@}")
+  else: add(dest, c)
+
+proc renderField(d: PDoc, n: PRstNode, result: var string) =
+  var b = false
+  if d.target == outLatex:
+    var fieldname = addNodes(n.sons[0])
+    var fieldval = esc(d.target, strip(addNodes(n.sons[1])))
+    if cmpIgnoreStyle(fieldname, "author") == 0 or
+       cmpIgnoreStyle(fieldname, "authors") == 0:
+      if d.meta[metaAuthor].len == 0:
+        d.meta[metaAuthor] = fieldval
+        b = true
+    elif cmpIgnoreStyle(fieldname, "version") == 0:
+      if d.meta[metaVersion].len == 0:
+        d.meta[metaVersion] = fieldval
+        b = true
+  if not b:
+    renderAux(d, n, "<tr>$1</tr>\n", "$1", result)
+
+proc esc(target: OutputTarget, s: string, splitAfter = -1): string =
+  result = ""
+  if splitAfter >= 0:
+    var partLen = 0
+    var j = 0
+    while j < len(s):
+      var k = nextSplitPoint(s, j)
+      if (splitter != " ") or (partLen + k - j + 1 > splitAfter):
+        partLen = 0
+        add(result, splitter)
+      for i in countup(j, k): addTexiChar( result, s[i])
+      inc(partLen, k - j + 1)
+      j = k + 1
+  else:
+    for i in countup(0, len(s) - 1): addTexiChar( result, s[i])
 
 proc getName(d: PDoc, n: PNode, splitAfter = -1): string =
   case n.kind
@@ -86,24 +147,6 @@ proc parseRst(text, filename: string,
   result = rstParse(text, filename, line, column, hasToc, rstOptions,
                     docgenFindFile, compilerMsgHandler)
 
-proc renderRstToTexi*(d: PDoc, n: PRstNode, result: var string)
-
-proc renderAux(d: PDoc, n: PRstNode, result: var string) =
-  for i in countup(0, len(n)-1): renderRstToTexi(d, n.sons[i], result)
-
-proc renderAux(d: PDoc, n: PRstNode, frmtA, frmtB, frmtC: string, result: var string) =
-  var tmp = ""
-  for i in countup(0, len(n)-1): renderRstToTexi(d, n.sons[i], tmp)
-  result.addf(frmtC, [tmp])
-
-proc renderAux(d: PDoc, n: PRstNode, frmtA, frmtB: string, result: var string) =
-  var tmp = ""
-  for i in countup(0, len(n)-1): renderRstToTexi(d, n.sons[i], tmp)
-  if d.target != outLatex:
-    result.addf(frmtA, [tmp])
-  else:
-    result.addf(frmtB, [tmp])
-
 
 proc renderCodeBlock(d: PDoc, n: PRstNode, result: var string) =
   ## Renders a code block, appending it to `result`.
@@ -124,50 +167,14 @@ proc renderCodeBlock(d: PDoc, n: PRstNode, result: var string) =
   renderAux(d, n.sons[2], "a","b","\n@example\n$1\n@end example\n", result)
 
 
+proc texiColumns(n: PRstNode): string =
+  result = ""
+  let nsons = len(n.sons[0])
+  for i in countup(1, nsons): add(result, " " & $(1.0/(nsons.toFloat)))
+
 proc texColumns(n: PRstNode): string =
   result = ""
   for i in countup(1, len(n)): add(result, "|X")
-
-proc addTexiChar(dest: var string, c: char) =
-  case c
-  of '@': add(dest, "@@")
-  of '{': add(dest, "@{")
-  of '}': add(dest, "@}")
-  else: add(dest, c)
-
-proc renderField(d: PDoc, n: PRstNode, result: var string) =
-  var b = false
-  if d.target == outLatex:
-    var fieldname = addNodes(n.sons[0])
-    var fieldval = esc(d.target, strip(addNodes(n.sons[1])))
-    if cmpIgnoreStyle(fieldname, "author") == 0 or
-       cmpIgnoreStyle(fieldname, "authors") == 0:
-      if d.meta[metaAuthor].len == 0:
-        d.meta[metaAuthor] = fieldval
-        b = true
-    elif cmpIgnoreStyle(fieldname, "version") == 0:
-      if d.meta[metaVersion].len == 0:
-        d.meta[metaVersion] = fieldval
-        b = true
-  if not b:
-    renderAux(d, n, "<tr>$1</tr>\n", "$1", result)
-
-proc esc*(target: OutputTarget, s: string, splitAfter = -1): string =
-  result = ""
-  if splitAfter >= 0:
-    var partLen = 0
-    var j = 0
-    while j < len(s):
-      var k = nextSplitPoint(s, j)
-      if (splitter != " ") or (partLen + k - j + 1 > splitAfter):
-        partLen = 0
-        add(result, splitter)
-      for i in countup(j, k): addTexiChar( result, s[i])
-      inc(partLen, k - j + 1)
-      j = k + 1
-  else:
-    for i in countup(0, len(s) - 1): addTexiChar( result, s[i])
-
 
 proc disp(target: OutputTarget, xml, tex: string): string =
   if target != outLatex: result = xml
@@ -250,22 +257,22 @@ proc renderRstToTexi(d: PDoc, n: PRstNode, result: var string) =
   of rnInner: renderAux(d, n, result)
   of rnHeadline: renderHeadline(d, n, result)
   of rnOverline: renderOverline(d, n, result)
-  of rnTransition: renderAux(d, n, "<hr />\n", "\\hrule\n", result)
+  of rnTransition: renderAux(d, n, "<hr />\n", "\\hrule\n","\n",  result)
   of rnParagraph: renderAux(d, n, "<p>$1</p>\n", "$1\n\n", "$1\n\n", result)
   of rnBulletList:
     renderAux(d, n, "<ul class=\"simple\">$1</ul>\n",
-                    "\\begin{itemize}$1\\end{itemize}\n", result)
+                    "\\begin{itemize}$1\\end{itemize}\n", "\n@itemize \n $1 \n@end itemize\n", result)
   of rnBulletItem, rnEnumItem:
-    renderAux(d, n, "<li>$1</li>\n", "\\item $1\n", result)
+    renderAux(d, n, "<li>$1</li>\n", "\\item $1\n","@item $1\n", result)
   of rnEnumList:
     renderAux(d, n, "<ol class=\"simple\">$1</ol>\n",
                     "\\begin{enumerate}$1\\end{enumerate}\n", result)
   of rnDefList:
     renderAux(d, n, "<dl class=\"docutils\">$1</dl>\n",
-                       "\\begin{description}$1\\end{description}\n", result)
+                       "\\begin{description}$1\\end{description}\n","\n@itemize \n $1 \n@end itemize\n", result)
   of rnDefItem: renderAux(d, n, result)
-  of rnDefName: renderAux(d, n, "<dt>$1</dt>\n", "\\item[$1] ", result)
-  of rnDefBody: renderAux(d, n, "<dd>$1</dd>\n", "$1\n", result)
+  of rnDefName: renderAux(d, n, "<dt>$1</dt>\n", "\\item[$1] ", "@item $1: ", result)
+  of rnDefBody: renderAux(d, n, "<dd>$1</dd>\n", "$1\n", "$1\n", result)
   of rnFieldList:
     var tmp = ""
     for i in countup(0, len(n) - 1):
@@ -277,30 +284,30 @@ proc renderRstToTexi(d: PDoc, n: PRstNode, result: var string) =
           "<col class=\"docinfo-content\" />" &
           "<tbody valign=\"top\">$1" &
           "</tbody></table>",
-          "\\begin{description}$1\\end{description}\n",
+          "\\begin{description}$1\\end{description}\n","\n@itemize \n $1 \n@end itemize\n",
           [tmp])
   of rnField: renderField(d, n, result)
   of rnFieldName:
     renderAux(d, n, "<th class=\"docinfo-name\">$1:</th>",
-                    "\\item[$1:]", result)
+                    "\\item[$1:]","@item $1: ", result)
   of rnFieldBody:
-    renderAux(d, n, "<td>$1</td>", " $1\n", result)
+    renderAux(d, n, "<td>$1</td>", " $1\n", "$1 \n", result)
   of rnIndex:
     renderRstToTexi(d, n.sons[2], result)
   of rnOptionList:
     renderAux(d, n, "<table frame=\"void\">$1</table>",
-      "\\begin{description}\n$1\\end{description}\n", result)
+              "\\begin{description}\n$1\\end{description}\n", "\n@itemize \n $1 \n@end itemize\n", result)
   of rnOptionListItem:
-    renderAux(d, n, "<tr>$1</tr>\n", "$1", result)
+    renderAux(d, n, "<tr>$1</tr>\n", "$1", "$1 \n", result)
   of rnOptionGroup:
-    renderAux(d, n, "<th align=\"left\">$1</th>", "\\item[$1]", result)
+    renderAux(d, n, "<th align=\"left\">$1</th>", "\\item[$1]", "@item $1: ", result)
   of rnDescription:
     renderAux(d, n, "<td align=\"left\">$1</td>\n", " $1\n", result)
   of rnOption, rnOptionString, rnOptionArgument:
     doAssert false, "renderRstToTexi"
   of rnLiteralBlock:
     renderAux(d, n, "<pre>$1</pre>\n",
-                    "\\begin{rstpre}\n$1\n\\end{rstpre}\n", result)
+                    "\\begin{rstpre}\n$1\n\\end{rstpre}\n", "\n@verbatim\n$1\n@end verbatim\n", result)
   of rnQuotedLiteralBlock:
     doAssert false, "renderRstToTexi"
   of rnLineBlock:
@@ -309,21 +316,23 @@ proc renderRstToTexi(d: PDoc, n: PRstNode, result: var string) =
     renderAux(d, n, "$1<br />", "$1\\\\\n", result)
   of rnBlockQuote:
     renderAux(d, n, "<blockquote><p>$1</p></blockquote>\n",
-                    "\\begin{quote}$1\\end{quote}\n", result)
+                    "\\begin{quote}$1\\end{quote}\n", "\n@quotation $1 \n@end quotation\n", result)
   of rnTable, rnGridTable:
     renderAux(d, n,
       "<table border=\"1\" class=\"docutils\">$1</table>",
       "\\begin{table}\\begin{rsttab}{" &
-        texColumns(n) & "|}\n\\hline\n$1\\end{rsttab}\\end{table}", result)
+        texColumns(n) & "|}\n\\hline\n$1\\end{rsttab}\\end{table}", "\n@multitable @columnfractions " &
+        texiColumns(n) & "\n$1"& "\n\n@end multitable\n", result)
   of rnTableRow:
     if len(n) >= 1:
       if d.target == outLatex:
         #var tmp = ""
+        result.add("@item ")
         renderRstToTexi(d, n.sons[0], result)
         for i in countup(1, len(n) - 1):
-          result.add(" & ")
+          result.add("\n@tab ")
           renderRstToTexi(d, n.sons[i], result)
-        result.add("\\\\\n\\hline\n")
+          result.add("\n")
       else:
         result.add("<tr>")
         renderAux(d, n, result)
@@ -331,7 +340,7 @@ proc renderRstToTexi(d: PDoc, n: PRstNode, result: var string) =
   of rnTableDataCell:
     renderAux(d, n, "<td>$1</td>", "$1", result)
   of rnTableHeaderCell:
-    renderAux(d, n, "<th>$1</th>", "\\textbf{$1}", result)
+    renderAux(d, n, "<th>$1</th>", "\\textbf{$1}", "@b{$1}", result)
   of rnLabel:
     doAssert false, "renderRstToTexi" # used for footnotes and other
   of rnFootnote:
@@ -385,7 +394,7 @@ proc renderRstToTexi(d: PDoc, n: PRstNode, result: var string) =
     renderAux(d, n, "<strong>$1</strong>", "\\textbf{$1}", "@strong{$1}", result)
   of rnTripleEmphasis:
     renderAux(d, n, "<strong><em>$1</em></strong>",
-                    "\\textbf{emph{$1}}", result)
+                    "\\textbf{emph{$1}}", "@strong{@emph{$1}}", result)
   of rnInterpretedText:
     renderAux(d, n, "<cite>$1</cite>", "\\emph{$1}", "@emph{$1}", result)
   of rnIdx:
@@ -435,7 +444,10 @@ proc genJSONItem(d: PDoc, n, nameNode: PNode, k: TSymKind): JsonNode =
   if comm != nil and comm != "":
     result["description"] = %comm
   if r.buf != nil:
-    result["code"] = %r.buf
+    if r.buf.count("\L") < 3:
+      result["code"] = %(r.buf.split("\L").map(strip_string).join("").replace(":", "꞉"))
+    else:
+      result["code"] = %(r.buf)
 
 proc checkForFalse(n: PNode): bool =
   result = n.kind == nkIdent and identEq(n.ident, "false")

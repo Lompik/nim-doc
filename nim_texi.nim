@@ -12,8 +12,8 @@ import nim_JsonWithTexi
 type symbol_type = enum
   skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter
 
-let indexv= @["Variable", "Type", "Function", "Iterator"]
-let index_type = {"Variable": ("@vindex","vr"), "Function": ("@findex","fn"), "Iterator": ("@itindex","it"), "Type":("@tpindex", "tp")}.totable
+let indexv= @["Variable", "Type", "Procedures", "Iterator"]
+let index_type = {"Variable": ("@vindex","vr"), "Procedures": ("@findex","fn"), "Iterator": ("@itindex","it"), "Type":("@tpindex", "tp")}.totable
 
 var symbols, symbols_empty = {
   "skConst": (skConst,"@vindex","","Constant variables"),
@@ -151,7 +151,8 @@ $2
     else:
       result = modulei[id+1] & " , " & modulei[id-1] & ", Top"
   chapters=chapters.replace(anchorre,update_node)
-  echo """@settitle The Nim Reference Manual
+  echo """@documentencoding UTF-8
+@settitle The Nim Reference Manual
 @ifnottex
 @node Top
 @top Nim info Manual
@@ -163,10 +164,10 @@ $2
   echo modules.join("")
   echo """
 
-* Function Index:: Procedures, Macros and Templates
-* Iterator Index:: Iterators
 * Variable Index:: Variables
 * Type Index:: Types
+* Procedures Index:: Procedures, Macros and Templates
+* Iterator Index:: Iterators
 @end menu
 
 hello!
