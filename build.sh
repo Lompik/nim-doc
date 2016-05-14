@@ -50,6 +50,8 @@ if [[ "$nim_version" == "0.13.0" ]]
 then
     sed -i 's/EntryArr\.}/EntryArr].}/' $nim_lib_path/pure/collections/LockFreeHash.nim
     sed -i "s/range[0..4611686018427387903]/range[0'i64..4611686018427387903'i64]/" $nim_lib_path/pure/collections/LockFreeHash.nim
+    sed -i "247s/if/#if/" $nim_lib_path/pure/collections/LockFreeHash.nim
+    sed -i "249s/else/#else/" $nim_lib_path/pure/collections/LockFreeHash.nim
 fi
 
 if [[ -e "$ref_output_dir/$ref_output_file.info.gz" ]]
@@ -65,7 +67,8 @@ echo "Building the texi/info docs"
 cd "$ref_output_dir"
 if [[ ! -z ${TRAVIS+x} ]]
 then ## cant compile with dynoverride yet https://github.com/nim-lang/Nim/issues/3646
-    LD_LIBRARY_PATH=$pcre_lib_path "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
+     ## eg: nim --dynlibOverride:pcre --passL:"/home/vagranta/pcre/lib/libpcre.a" c  nim_texi.nim
+    Ld_LIBRARY_PATH=$pcre_lib_path "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
 else
     "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
 fi

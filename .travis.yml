@@ -29,6 +29,7 @@ install:
         cd pcre-$pcre_version
         ./configure --prefix=$PWD/../pcre && make -j2 && make install
         cd ..
+        ln -s pcre/lib/libpcre.so.1 pcre/lib/libpcre.so.3
     fi
 
 cache:
