@@ -16,6 +16,9 @@ then
     nim_bin_path=${nim_bin_path:-"$travis_build_home/nim-$nim_version/bin"}
     nim_lib_path=${nim_lib_path:-"$travis_build_home/nim-$nim_version/lib"}
     echo "path:\"$nre_lib_path\"" > nim.cfg # workaround for -p with abs path
+    echo "path:\"$nre_lib_path/../compiler\"" >> nim.cfg
+    echo "path:\"$nre_lib_path/..\"" >> nim.cfg
+    echo "path:\"$lib/packages/docutils\"" >> nim.cfg
 fi
 
 if ! type nim &> /dev/null  # outside of travis, allow customization
@@ -25,7 +28,7 @@ fi
 
 if ! type makeinfo &> /dev/null  # outside of travis, allow customization
 then
-    echo "Error: (recent) makeinfo [package texinfo] required"
+    echo "Error: makeinfo [package texinfo] required"
     exit 1
 fi
 
