@@ -20,16 +20,16 @@ install:
         ./koch boot -d:release
         cd ..
     fi
-    if [[ ! -e "pcre/lib/libpcre.so.3" ]]
+    if [[ -e "pcre/lib/libpcre.so.3" ]]
        #Build makeinfo if doesnt exist
     then
         curl -sSL -O "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$pcre_version.tar.gz"
         tar xvzf pcre-$pcre_version.tar.gz
-        [[ ! -d pcre ]] && mkdir pcre
+        [[ ! -d pcre ]] && mkdir pcre || rm -rf pcre
         cd pcre-$pcre_version
         ./configure --prefix=$PWD/../pcre && make -j2 && make install
         cd ..
-        ln -s pcre/lib/libpcre.so.1 pcre/lib/libpcre.so.3
+        cp $PWD/pcre/lib/libpcre.so.1 $PWD/pcre/lib/libpcre.so.3
     fi
 
 cache:
