@@ -14,7 +14,6 @@ then
     pcre_lib_path=${nre_lib_path:-"$travis_build_home/pcre/lib"}
     nim_bin_path=${nim_bin_path:-"$travis_build_home/nim-$nim_version/bin"}
     nim_lib_path=${nim_lib_path:-"$travis_build_home/nim-$nim_version/lib"}
-    echo "path:\"$nre_lib_path\"" > nim.cfg # workaround for -p with abs path
     echo "path:\""$(readlink -f "$nim_lib_path/..")"\"" >> nim.cfg
     echo "path:\"$nim_lib_path/packages/docutils\"" >> nim.cfg
     cat nim.cfg # debug
