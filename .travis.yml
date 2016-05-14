@@ -2,6 +2,11 @@ language: c
 
 sudo: no
 
+addons:
+  apt:
+    packages:
+    - texinfo
+
 install:
   - |
     if [[ ! -e "nim-$nim_version/bin/nim" ]]
@@ -15,34 +20,27 @@ install:
         ./koch boot -d:release
         cd ..
     fi
-    if [[ ! -e "texinfo/bin/makeinfo" ]]
+    if [[ ! -e "pcre" ]]
        #Build makeinfo if doesnt exist
     then
-        curl -sSL -O "http://ftp.gnu.org/gnu/texinfo/texinfo-$texinfo_version.tar.gz"
-        tar xvzf texinfo-$texinfo_version.tar.gz
-        [[ ! -d texinfo ]] && mkdir texinfo
-        cd texinfo-$texinfo_version
-        ./configure --prefix=$PWD/../texinfo && make -j2 && make install
+        curl -sSL -O "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$pcre_version.tar.gz"
+        tar xvzf pcre-$pcre_version.tar.gz
+        [[ ! -d pcre ]] && mkdir pcre
+        cd pcre-$pcre_version
+        ./configure --prefix=$PWD/../pcre && make -j2 && make install
         cd ..
-    fi
-    if [[ ! -e "nre/src/nre.nim" ]]
-       #Import nre with built it pcre if doesnt exist
-    then
-        git clone https://github.com/flaviut/nre
     fi
 
 cache:
   directories:
     - nim-0.13.0
-    - texinfo
-    - nre
+    - pcre
 
 before_script:
   - export PATH="$PWD/nim-0.13.0/bin${PATH:+:$PATH}"
-  - export PATH="$PWD/texinfo/bin${PATH:+:$PATH}"
 
 env:
-  - texinfo_version=6.0 nim_version=0.13.0
+  - pcre_version=8.38 nim_version=0.13.0
 
 matrix:
   fast_finish: true
