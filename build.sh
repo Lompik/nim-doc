@@ -44,13 +44,12 @@ fi
 echo "building json -> texi converter"
 nim c nim_texi.nim
 
-set +e
-echo "Extracting json doc from .nim's"
-for file in $(find $nim_lib_path -iname '*.nim')
-do
-    nim jsondoc $file &> /dev/null
-done
-set -e
+# Fix ast parse error in version 0.13.0
+if [[ "$nim_version" == "0.13.0" ]]
+then
+    sed -i 's/EntryArr\.}/EntryArr].}/' $nim_lib_path/pure/collections/LockFreeHash.nim
+    sed -i "s/range[0..4611686018427387903]/range[0'i64..4611686018427387903'i64]/" $nim_lib_path/pure/collections/LockFreeHash.nim
+fi
 
 if [[ -e "$ref_output_dir/$ref_output_file.info.gz" ]]
 then

@@ -21,9 +21,8 @@ Example:
 
 * how
 ** Requirements for build
-   - [[http://pandoc.org/index.html][pandoc]]
    - [[https://www.gnu.org/software/texinfo/][texinfo]]
-   - writable nim's lib folder ( set =nim_lib_path=/path/to/copy=)
+   - nim's lib folder ( set with =nim_lib_path=/path/to/copy=)
 
 ** reference manual
 The scripts for generating the doc is included as I tried to make
@@ -40,7 +39,8 @@ generator to a org generator.
 
 * todo
 
-  - [ ] create different index for iterators, macros, etc
-  - [ ] reduce =pandoc= usage by modifying =nim jsondoc= code
+  - [X] create different index for iterators, macros, etc
+  - [X] reduce =pandoc= usage by modifying =nim jsondoc= code
   - [ ] better texi file templating
   - [ ] handle ~idx~ references
+  - [ ] handle parsing errors

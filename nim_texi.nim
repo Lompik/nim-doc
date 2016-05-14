@@ -7,6 +7,8 @@ import options
 import tables
 import posix
 
+import nim_JsonWithTexi
+
 type symbol_type = enum
   skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter
 
@@ -74,10 +76,13 @@ $1
 
 
     if(n_json[i].haskey("description") and n_json[i]["description"].str.strip != ""):
-      check_posix(tmpfile.ftruncate(0))
-      check_posix(posix.write(tmpfile,addr n_json[i]["description"].str[0], n_json[i]["description"].str.len))
-      output &= execProcess( @["/usr/bin/pandoc","-f","html","-t","texinfo", tmpname].join(" "),
-                        @[] ).replace("@node Top","").replace("@top Top","").replace(re"@ref{.*?,(.*?)}","\1")
+      if(defined(usePandoc)):
+        check_posix(tmpfile.ftruncate(0))
+        check_posix(posix.write(tmpfile,addr n_json[i]["description"].str[0], n_json[i]["description"].str.len))
+        output &= execProcess( @["/usr/bin/pandoc","-f","html","-t","texinfo", tmpname].join(" "),
+                          @[] ).replace("@node Top","").replace("@top Top","").replace(re"@ref{.*?,(.*?)}","\1")
+      else:
+        output &= n_json[i]["description"].str.strip
     #let id = (symbols[stype])[0]
     symbols[stype][2] = symbols[stype][2] & output
   discard tmpfile.close()
@@ -94,9 +99,14 @@ proc Main()=
   var i = -1
   for file in walkDirRec(json_dir ):
     var (mpath, module, ext) = splitFile(file)
-    if ext != ".json":
+    if ext != ".nim":
       continue
-    var n_json = json.parseFile(file)
+
+    var n_json: JsonNode
+    try:
+      n_json = nim_JsonWithTexi.parseNim(file)
+    except:
+      continue
     if len(n_json) == 0:
       continue
     i+=1
@@ -128,10 +138,13 @@ $2
                   symbols["skConverter"][2],
                   symbols["skMethod"][2],
                   symbols["skIterator"][2]].join("\n")
+  let max_files=i+1
 
   proc update_node(match: RegexMatch):string=
     let id = match.captures["index"].parseInt
-    if id == 0:
+    if max_files == 1:
+      result = indexv[0] & " Index, " & "Top" & ", Top"
+    elif id == 0 and max_files>1:
       result = modulei[id+1] & " , Top, Top"
     elif id == modulei.len-1:
       result = indexv[0] & " Index, " & modulei[id-1] & ", Top"
