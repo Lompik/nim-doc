@@ -14,7 +14,7 @@ then
     pcre_lib_path=${nre_lib_path:-"$travis_build_home/pcre/lib"}
     nim_bin_path=${nim_bin_path:-"$travis_build_home/nim-$nim_version/bin"}
     nim_lib_path=${nim_lib_path:-"$travis_build_home/nim-$nim_version/lib"}
-    echo "path:\""$(readlink -f "$nim_lib_path/..")"\"" >> nim.cfg
+    echo "path:\""$(readlink -f "$nim_lib_path/..")"\"" > nim.cfg
     echo "path:\"$nim_lib_path/packages/docutils\"" >> nim.cfg
     cat nim.cfg # debug
 fi
@@ -68,7 +68,7 @@ cd "$ref_output_dir"
 if [[ ! -z ${TRAVIS+x} ]]
 then ## cant compile with dynoverride yet https://github.com/nim-lang/Nim/issues/3646
      ## eg: nim --dynlibOverride:pcre --passL:"/home/vagranta/pcre/lib/libpcre.a" c  nim_texi.nim
-    Ld_LIBRARY_PATH=$pcre_lib_path "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
+    Ld_LIBRARY_PATH=$pcre_lib_path "$start_dir"/nim_texi $nim_lib_path | tee $ref_output_file.texi
 else
     "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
 fi
