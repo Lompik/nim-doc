@@ -72,7 +72,7 @@ then ## cant compile with dynoverride yet https://github.com/nim-lang/Nim/issues
 else
     "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
 fi
-makeinfo --no-split $ref_output_file.texi &> /dev/null
+makeinfo --no-split $ref_output_file.texi
 gzip $ref_output_file.info
 cd "$start_dir"
 
