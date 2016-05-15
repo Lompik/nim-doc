@@ -100,13 +100,19 @@ $1
 let anchor = ""
 let anchorre = re" (?<index>\d+)"
 
+proc set_include_dir*(dir:string):string=
+  dir.replace(re"/lib/?$","")
+
+
 proc Main()=
   var chapters = ""
   var modules : seq[string] = @[]
   var modulei : seq[string] = @[]
-  var json_dir = commandLineParams()[0]
+  var lib_dir = commandLineParams()[0]
+  nim_JsonWithTexi.include_dir = set_include_dir(lib_dir)
+  stderr.writeline nim_JsonWithTexi.include_dir
   var i = -1
-  for file in walkDirRec(json_dir ):
+  for file in walkDirRec(lib_dir ):
     var (mpath, module, ext) = splitFile(file)
     if ext != ".nim":
       continue
@@ -119,7 +125,7 @@ proc Main()=
     if len(n_json) == 0:
       continue
     i+=1
-    var mod1 = mpath.split(json_dir)
+    var mod1 = mpath.split(lib_dir)
     module = mod1[mod1.len - 1] & "/" & module
     modulei.add(module)
     modules.add("* " & module & "::\n")

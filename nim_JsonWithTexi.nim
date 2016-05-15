@@ -28,10 +28,10 @@ import packages/docutils/rst
 
 import os, osproc, strutils, strtabs, times, json, sequtils
 
-#handleCmdLine()
+var include_dir*:string=""
+
 proc myFindFile(filename: string): string {.procvar.}=
-  let t = joinPath("/tmp/nim-0.13.0",if startsWith(filename,"../"): filename.substr(3) else: filename)
-  echo t
+  let t = joinPath(include_dir,if startsWith(filename,"../"): filename.substr(3) else: filename) ## hardcoded path fix for nim's src
   if existsFile(t): result = t
   else: result = ""
 
