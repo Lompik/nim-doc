@@ -28,6 +28,13 @@ import packages/docutils/rst
 
 import os, osproc, strutils, strtabs, times, json, sequtils
 
+#handleCmdLine()
+proc myFindFile(filename: string): string {.procvar.}=
+  let t = joinPath("/tmp/nim-0.13.0",if startsWith(filename,"../"): filename.substr(3) else: filename)
+  echo t
+  if existsFile(t): result = t
+  else: result = ""
+
 proc strip_string(s:string):string=
   strip(s)
 
@@ -145,7 +152,7 @@ proc parseRst(text, filename: string,
               line, column: int, hasToc: var bool,
               rstOptions: RstParseOptions): PRstNode =
   result = rstParse(text, filename, line, column, hasToc, rstOptions,
-                    docgenFindFile, compilerMsgHandler)
+                    myFindFile, compilerMsgHandler)
 
 
 proc renderCodeBlock(d: PDoc, n: PRstNode, result: var string) =
@@ -266,7 +273,7 @@ proc renderRstToTexi(d: PDoc, n: PRstNode, result: var string) =
     renderAux(d, n, "<li>$1</li>\n", "\\item $1\n","@item $1\n", result)
   of rnEnumList:
     renderAux(d, n, "<ol class=\"simple\">$1</ol>\n",
-                    "\\begin{enumerate}$1\\end{enumerate}\n", result)
+                    "\\begin{enumerate}$1\\end{enumerate}\n", "\n@itemize \n $1 \n@end itemize\n",result)
   of rnDefList:
     renderAux(d, n, "<dl class=\"docutils\">$1</dl>\n",
                        "\\begin{description}$1\\end{description}\n","\n@itemize \n $1 \n@end itemize\n", result)
@@ -455,9 +462,8 @@ proc checkForFalse(n: PNode): bool =
 proc generateJson(d: PDoc, n: PNode, jArray: JsonNode = nil): JsonNode =
   case n.kind
   of nkCommentStmt:
-    if n.comment != nil and startsWith(n.comment, "##"):
-      let stripped = n.comment.substr(2).strip
-      result = %{ "comment": %stripped }
+    if n.comment != nil:
+      result = %{ "moduledesc": %genComment(d,n) }
   of nkProcDef:
     when useEffectSystem: documentRaises(n)
     result = genJSONItem(d, n, n.sons[namePos], skProc)
@@ -494,10 +500,6 @@ proc generateJson(d: PDoc, n: PNode, jArray: JsonNode = nil): JsonNode =
       discard generateJson(d, lastSon(n.sons[0]), jArray)
   else: discard
 
-#handleCmdLine()
-proc myFindFile(filename: string): string =
-  # we don't find any files in online mode:
-  result = ""
 const
   messages: array [MsgKind, string] = [
     meCannotOpenFile: "cannot open '$1'",

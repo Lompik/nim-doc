@@ -10,12 +10,18 @@ import posix
 import nim_JsonWithTexi
 
 type symbol_type = enum
-  skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter
+  skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter, moduleDesc
+const
+  s_en=0
+  s_index=1
+  s_data=2
+  s_printname=3
 
 let indexv= @["Variable", "Type", "Procedures", "Iterator"]
 let index_type = {"Variable": ("@vindex","vr"), "Procedures": ("@findex","fn"), "Iterator": ("@itindex","it"), "Type":("@tpindex", "tp")}.totable
 
 var symbols, symbols_empty = {
+  "moduleDesc": (moduleDesc,"","","Module Description"),
   "skConst": (skConst,"@vindex","","Constant variables"),
   "skIterator": (skIterator,"@itindex","","Iterators"),
   "skLet": (skLet,"@vindex","","Let variable"),
@@ -61,6 +67,9 @@ proc parse_symb_json(n_json:JsonNode, module:string)=
   symbols=symbols_empty
   for i in countUp(0,n_json.len- 1):
     var output="\n\n"
+    if n_json[i].haskey("moduledesc"):
+      symbols["moduleDesc"][s_data] = n_json[i]["moduledesc"].str & "\n"
+      continue
     var stype = n_json[i]["type"].str
     output &= """
 @item $1
@@ -84,7 +93,7 @@ $1
       else:
         output &= n_json[i]["description"].str.strip
     #let id = (symbols[stype])[0]
-    symbols[stype][2] = symbols[stype][2] & output
+    symbols[stype][s_data] = symbols[stype][s_data] & output
   discard tmpfile.close()
   tmpname.removeFile()
 
@@ -119,25 +128,32 @@ proc Main()=
     parse_symb_json(n_json, module)
 
     for stype in symbols.keys:
-      if symbols[stype][2] != "":
-         symbols[stype][2] ="""
+      if symbols[stype][s_data] != "":
+        if stype == "moduleDesc":
+          chapters &= """
+@chapter $1
+
+$2
+""" % [symbols[stype][s_printname], symbols[stype][s_data]]
+
+        else: symbols[stype][s_data] ="""
 @chapter $1
 
 @itemize
 $2
 @end itemize
-""" % [symbols[stype][3], symbols[stype][2]]
+""" % [symbols[stype][3], symbols[stype][s_data]]
 
-    chapters &= @[symbols["skConst"][2],
-                  symbols["skLet"][2],
-                  symbols["skVar"][2],
-                  symbols["skType"][2],
-                  symbols["skProc"][2],
-                  symbols["skTemplate"][2],
-                  symbols["skMacro"][2],
-                  symbols["skConverter"][2],
-                  symbols["skMethod"][2],
-                  symbols["skIterator"][2]].join("\n")
+    chapters &= @[symbols["skConst"][s_data],
+                  symbols["skLet"][s_data],
+                  symbols["skVar"][s_data],
+                  symbols["skType"][s_data],
+                  symbols["skProc"][s_data],
+                  symbols["skTemplate"][s_data],
+                  symbols["skMacro"][s_data],
+                  symbols["skConverter"][s_data],
+                  symbols["skMethod"][s_data],
+                  symbols["skIterator"][s_data]].join("\n")
   let max_files=i+1
 
   proc update_node(match: RegexMatch):string=
