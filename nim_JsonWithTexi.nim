@@ -452,7 +452,7 @@ proc genJSONItem(d: PDoc, n, nameNode: PNode, k: TSymKind): JsonNode =
     result["description"] = %comm
   if r.buf != nil:
     if r.buf.count("\L") < 3:
-      result["code"] = %(r.buf.split("\L").map(strip_string).join("").replace(":", "꞉"))
+      result["code"] = %(r.buf.split("\L").map(strip_string).join("").replace(":", "܃"))
     else:
       result["code"] = %(r.buf)
 
