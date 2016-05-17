@@ -103,6 +103,15 @@ let anchorre = re" (?<index>\d+)"
 proc set_include_dir*(dir:string):string=
   dir.replace(re"/lib/?$","")
 
+var excluded_dir = @["private"]
+
+proc isFileExcluded(file: tuple[dir, name, ext: string]):bool =
+  result = false
+  if file.ext != ".nim" :
+    return true
+  for excluded in excluded_dir:
+    if file.dir.find(excluded) != -1:
+      return true
 
 proc Main()=
   var chapters = ""
@@ -114,7 +123,8 @@ proc Main()=
   var i = -1
   for file in walkDirRec(lib_dir ):
     var (mpath, module, ext) = splitFile(file)
-    if ext != ".nim":
+    if (mpath, module, ext).isFileExcluded:
+      stderr.writeLine "Ignored: "&  [mpath , module & ext].joinPath
       continue
 
     var n_json: JsonNode
