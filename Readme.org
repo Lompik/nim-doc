@@ -39,8 +39,6 @@ generator to a org generator.
 
 * todo
 
-  - [X] create different index for iterators, macros, etc
-  - [X] reduce =pandoc= usage by modifying =nim jsondoc= code
   - [ ] better texi file templating
   - [ ] handle ~idx~ references
   - [ ] handle parsing errors
