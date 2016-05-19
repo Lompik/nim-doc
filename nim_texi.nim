@@ -33,21 +33,8 @@ var symbols, symbols_empty = {
   "skMethod": (skConverter,"@findex","","Methods"),
   "skVar": (skVar,"@vindex","","Variables")}.totable
 
-let htmlcodes : seq[tuple[utf8:string, code:string]]=
-  @[("<", "&lt;"),
-    (">", "&gt;"),
-    ("&", "&amp;"),
-    ("\"", "&quot;"),
-    ("\'", "&#x27;"),
-    ("/", "&#x2F;")]
-
-
 proc texize(txt:string):string=
-  result=txt
-  if txt[0] in @[ '`' , '\''] or txt.find("&") != -1:
-    for htmlcode in htmlcodes:
-     result = result.replace(htmlcode.code,htmlcode.utf8)
-  result=result.replace("@", "@@").replace("}","@}").replace("{","@{")
+  txt.replace("@", "@@").replace("}","@}").replace("{","@{")
 
 proc check_posix(c:auto, fr:PFrame=nil)=
   if c == -1:
@@ -85,13 +72,7 @@ $1
 
 
     if(n_json[i].haskey("description") and n_json[i]["description"].str.strip != ""):
-      if(defined(usePandoc)):
-        check_posix(tmpfile.ftruncate(0))
-        check_posix(posix.write(tmpfile,addr n_json[i]["description"].str[0], n_json[i]["description"].str.len))
-        output &= execProcess( @["/usr/bin/pandoc","-f","html","-t","texinfo", tmpname].join(" "),
-                          @[] ).replace("@node Top","").replace("@top Top","").replace(re"@ref{.*?,(.*?)}","\1")
-      else:
-        output &= n_json[i]["description"].str.strip
+      output &= n_json[i]["description"].str.strip
     #let id = (symbols[stype])[0]
     symbols[stype][s_data] = symbols[stype][s_data] & output
   discard tmpfile.close()
