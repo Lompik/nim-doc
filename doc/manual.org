@@ -3433,7 +3433,8 @@ The ~destructor~ pragma is used to mark a proc to act as a type destructor. Its 
 See `type bound operations`_ instead.
 ** procvar pragma
 
-The ~procvar~ pragma is used to mark a proc that it can be passed to a procedural variable.
+The ~procvar~ pragma is used to mark a proc that it can be passed to a
+procedural variable.
 ** compileTime pragma
 
 The ~compileTime~ pragma is used to mark a proc or variable to be used at compile time only. No code will be generated for it. Compile time procs are useful as helpers for macros. Since version 0.12.0 of the language, a proc that uses ~system.NimNode~ within its parameter types is implictly declared ~compileTime~:
@@ -4744,9 +4745,13 @@ type
 #+END_SRC
 
 
-However, it is then not an ordinal anymore, so it is not possible to use these enums as an index type for arrays. The procedures ~inc~, ~dec~, ~succ~ and ~pred~ are not available for them either.
+However, it is then not an ordinal anymore, so it is not possible to
+use these enums as an index type for arrays. The procedures ~inc~,
+~dec~, ~succ~ and ~pred~ are not available for them either.
 
-The compiler supports the built-in stringify operator ~$~ for enumerations. The stringify's result can be controlled by explicitly giving the string values to use:
+The compiler supports the built-in stringify operator ~$~ for
+enumerations. The stringify's result can be controlled by explicitly
+giving the string values to use:
 
 #+BEGIN_SRC nim
 
@@ -4759,9 +4764,13 @@ type
 #+END_SRC
 
 
-As can be seen from the example, it is possible to both specify a field's ordinal value and its string value by using a tuple. It is also possible to only specify one of them.
+As can be seen from the example, it is possible to both specify a
+field's ordinal value and its string value by using a tuple. It is
+also possible to only specify one of them.
 
-An enum can be marked with the ~pure~ pragma so that it's fields are not added to the current scope, so they always need to be accessed via ~MyEnum.value~:
+An enum can be marked with the ~pure~ pragma so that it's fields are
+not added to the current scope, so they always need to be accessed via
+~MyEnum.value~:
 
 #+BEGIN_SRC nim
 

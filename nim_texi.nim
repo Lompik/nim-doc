@@ -7,7 +7,7 @@ import options
 import tables
 import posix
 
-import nim_JsonWithTexi
+import nim_JsonWithTexi, config
 
 type symbol_type = enum
   skConst=0, skIterator, skLet, skProc, skTemplate, skType, skVar, skMacro, skConverter, moduleDesc
@@ -46,7 +46,7 @@ proc check_posix(c:auto, fr:PFrame=nil)=
       echo "Error in Posix call at line: "
       quit 1
 
-proc parse_symb_json(n_json:JsonNode, module:string)=
+proc parse_symb_json(n_json:JsonNode, module:string, oconfig: output_config)=
   var  tmpname = getTempDir().joinPath("jjjjjiiii516516156161")
   var tmpfile = posix.open(tmpname, posix.O_RDWR or posix.O_CREAT, posix.S_IRWXU)
   check_posix(tmpfile)
@@ -58,17 +58,11 @@ proc parse_symb_json(n_json:JsonNode, module:string)=
       symbols["moduleDesc"][s_data] = n_json[i]["moduledesc"].str & "\n"
       continue
     var stype = n_json[i]["type"].str
-    output &= """
-@item $1
-  """ % [n_json[i]["name"].str.texize]
+    output &= oconfig.otemplate[item] % [n_json[i]["name"].str.texize]
     output &= "$1 $2\n" % [(symbols[stype])[1],n_json[i]["code"].str.texize, module]
 
     if(n_json[i].haskey("code")):
-      output &= """
-@example
-$1
-@end example
-  """ % n_json[i]["code"].str.texize
+      output &= oconfig.otemplate[example] % n_json[i]["code"].str.texize
 
 
     if(n_json[i].haskey("description") and n_json[i]["description"].str.strip != ""):
@@ -95,6 +89,8 @@ proc isFileExcluded(file: tuple[dir, name, ext: string]):bool =
       return true
 
 proc Main()=
+  let oconfig: output_config = config.parseConfig("config/nimtexi.cfg")
+  excluded_dir=oconfig.ignoredPath
   var chapters = ""
   var modules : seq[string] = @[]
   var modulei : seq[string] = @[]
@@ -122,24 +118,14 @@ proc Main()=
     modules.add("* " & module & "::\n")
     chapters &= "\n@node $1, $2 $3\n" % [module, anchor, $i]
 
-    parse_symb_json(n_json, module)
+    parse_symb_json(n_json, module, oconfig)
 
     for stype in symbols.keys:
       if symbols[stype][s_data] != "":
         if stype == "moduleDesc":
-          chapters &= """
-@chapter $1
+          chapters &= oconfig.otemplate[chapterDescr] % [symbols[stype][s_printname], symbols[stype][s_data]]
 
-$2
-""" % [symbols[stype][s_printname], symbols[stype][s_data]]
-
-        else: symbols[stype][s_data] ="""
-@chapter $1
-
-@itemize
-$2
-@end itemize
-""" % [symbols[stype][3], symbols[stype][s_data]]
+        else: symbols[stype][s_data] =oconfig.otemplate[chapterItemized] % [symbols[stype][3], symbols[stype][s_data]]
 
     chapters &= @[symbols["skConst"][s_data],
                   symbols["skLet"][s_data],
@@ -164,27 +150,9 @@ $2
     else:
       result = modulei[id+1] & " , " & modulei[id-1] & ", Top"
   chapters=chapters.replace(anchorre,update_node)
-  echo """@documentencoding UTF-8
-@settitle The Nim Reference Manual
-@ifnottex
-@node Top
-@top Nim info Manual
-@end ifnottex
-@defindex it
-
-@menu
-"""
+  echo oconfig.otemplate[intro]
   echo modules.join("")
-  echo """
-
-* Variable Index:: Variables
-* Type Index:: Types
-* Procedures Index:: Procedures, Macros and Templates
-* Iterator Index:: Iterators
-@end menu
-
-hello!
-"""
+  echo oconfig.otemplate[introIndex]
   echo chapters
 
   for index, key in indexv.pairs:
@@ -199,13 +167,7 @@ hello!
     else:
       prev=indexv[index - 1]& " Index"
       next=indexv[index + 1]& " Index"
-    echo """
-@node $1 Index, $3, $4, Top
-@unnumbered $1 Index
-
-@printindex $2
-
-""" % [key, index_type[key][1], next, prev]
+    echo oconfig.otemplate[indexes] % [key, index_type[key][1], next, prev]
 Main()
 
 # Local Variables:

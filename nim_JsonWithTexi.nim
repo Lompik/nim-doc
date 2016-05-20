@@ -28,16 +28,14 @@ import packages/docutils/rst
 
 import os, osproc, strutils, strtabs, times, json, sequtils
 
+import utils
+
 var include_dir*:string=""
 
 proc myFindFile(filename: string): string {.procvar.}=
   let t = joinPath(include_dir,if startsWith(filename,"../"): filename.substr(3) else: filename) ## hardcoded path fix for nim's src
   if existsFile(t): result = t
   else: result = ""
-
-proc strip_string(s:string):string=
-  strip(s)
-
 
 proc isVisible(n: PNode): bool =
   result = false
