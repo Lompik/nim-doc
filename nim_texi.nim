@@ -89,12 +89,13 @@ proc isFileExcluded(file: tuple[dir, name, ext: string]):bool =
       return true
 
 proc Main()=
-  let oconfig: output_config = config.parseConfig("config/nimtexi.cfg")
+  let (lib_dir, config_file) = parseCmd()
+  let oconfig: output_config = config.parseConfig(config_file)
   excluded_dir=oconfig.ignoredPath
   var chapters = ""
   var modules : seq[string] = @[]
   var modulei : seq[string] = @[]
-  var lib_dir = commandLineParams()[0]
+
   nim_JsonWithTexi.include_dir = set_include_dir(lib_dir)
   stderr.writeline nim_JsonWithTexi.include_dir
   var i = -1

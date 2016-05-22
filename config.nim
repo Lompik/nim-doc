@@ -1,5 +1,5 @@
 import
-  os, parsecfg, strutils, streams, sequtils, utils
+  os, parsecfg, strutils, streams, sequtils, utils, parseopt2
 
 type
   output_template* = enum
@@ -71,6 +71,28 @@ proc parseConfig*(file:string):output_config=
 
   else:
     echo("cannot open: " & paramStr(1))
+
+proc parseCmd*():tuple[libd:string, conff:string]=
+  var
+    config_filename = "config/nimtexi.cfg"
+    lib_dir : string = ""
+  for kind, key, val in getopt():
+    case kind
+    of cmdArgument:
+      lib_dir = key
+    of cmdLongOption, cmdShortOption:
+      case key:
+        of "config", "c":
+          config_filename=val
+        else :
+          discard
+    of cmdEnd: assert(false) # cannot happen
+  if lib_dir == "":
+    # no config_filename has been given, so we show the help:
+    echo "Need nim's library directory!"
+  else:
+    result = (lib_dir, config_filename)
+
 
 when isMainModule:
   let c = parseConfig(paramStr(1))

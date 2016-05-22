@@ -68,7 +68,7 @@ cd "$ref_output_dir"
 if [[ ! -z ${TRAVIS+x} ]]
 then ## cant compile with dynoverride yet https://github.com/nim-lang/Nim/issues/3646
      ## eg: nim --dynlibOverride:pcre --passL:"/home/vagranta/pcre/lib/libpcre.a" c  nim_texi.nim
-    LD_LIBRARY_PATH=$pcre_lib_path "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
+    LD_LIBRARY_PATH=$pcre_lib_path "$start_dir"/nim_texi -c:"$start_dir"/config/nimtexi.cfg $nim_lib_path > $ref_output_file.texi
 else
     "$start_dir"/nim_texi $nim_lib_path > $ref_output_file.texi
 fi

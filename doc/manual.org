@@ -1743,7 +1743,8 @@ A ~let~ statement declares new local and global `single assignment`:idx: variabl
 For let variables the same pragmas are available as for ordinary variables.
 ** Tuple unpacking
 
-In a ~var~ or ~let~ statement tuple unpacking can be performed. The special identifier ~_~ can be used to ignore some parts of the tuple:
+In a ~var~ or ~let~ statement tuple unpacking can be performed. The
+special identifier ~_~ can be used to ignore some parts of the tuple:
 
 #+BEGIN_SRC nim
 proc returnsTuple(): (int, int, int) = (4, 2, 3)
