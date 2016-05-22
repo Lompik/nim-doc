@@ -117,7 +117,7 @@ proc Main()=
     module = mod1[mod1.len - 1] & "/" & module
     modulei.add(module)
     modules.add("* " & module & "::\n")
-    chapters &= "\n@node $1, $2 $3\n" % [module, anchor, $i]
+    chapters &= oconfig.otemplate[nodes] % [module, anchor, $i]
 
     parse_symb_json(n_json, module, oconfig)
 

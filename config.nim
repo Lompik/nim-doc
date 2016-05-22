@@ -3,7 +3,7 @@ import
 
 type
   output_template* = enum
-    intro,  introIndex,  item,  example,  chapterDescr,  chapterItemized,  indexes
+    intro,  introIndex,  item,  example,  chapterDescr,  chapterItemized, nodes,  indexes
 
 type
   output_config* = object
@@ -51,6 +51,8 @@ proc parseConfig*(file:string):output_config=
             result.otemplate[example] = e.value
           of "chapterDescr":
             result.otemplate[chapterDescr] = e.value
+          of "nodes":
+            result.otemplate[nodes] = e.value
           of "chapterItemized":
             result.otemplate[chapterItemized] = e.value
           of "indexes":
