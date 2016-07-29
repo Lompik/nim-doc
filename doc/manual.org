@@ -1151,12 +1151,27 @@ t[f()] = g()
 
 * Threads
 
-To enable thread support the ~--threads:on~ command line switch needs to be used. The ~system~ module then contains several threading primitives. See the [[threads.html][threads]] and [[channels.html][channels]] modules for the low level thread API. There are also high level parallelism constructs available. See `spawn`_ for further details.
+To enable thread support the ~--threads:on~ command line switch needs
+to be used. The ~system~ module then contains several threading
+primitives. See the [[threads.html][threads]] and [[channels.html][channels]] modules for the low level
+thread API. There are also high level parallelism constructs
+available. See `spawn`_ for further details.
 
-Nim's memory model for threads is quite different than that of other common programming languages (C, Pascal, Java): Each thread has its own (garbage collected) heap and sharing of memory is restricted to global variables. This helps to prevent race conditions. GC efficiency is improved quite a lot, because the GC never has to stop other threads and see what they reference. Memory allocation requires no lock at all! This design easily scales to massive multicore processors that are becoming the norm.
+Nim's memory model for threads is quite different than that of other
+common programming languages (C, Pascal, Java): Each thread has its
+own (garbage collected) heap and sharing of memory is restricted to
+global variables. This helps to prevent race conditions. GC efficiency
+is improved quite a lot, because the GC never has to stop other
+threads and see what they reference. Memory allocation requires no
+lock at all! This design easily scales to massive multicore processors
+that are becoming the norm.
 ** Thread pragma
 
-A proc that is executed as a new thread of execution should be marked by the ~thread~ pragma for reasons of readability. The compiler checks for violations of the `no heap sharing restriction`:idx:: This restriction implies that it is invalid to construct a data structure that consists of memory allocated from different (thread local) heaps.
+A proc that is executed as a new thread of execution should be marked
+by the ~thread~ pragma for reasons of readability. The compiler checks
+for violations of the `no heap sharing restriction`:idx:: This
+restriction implies that it is invalid to construct a data structure
+that consists of memory allocated from different (thread local) heaps.
 
 A thread proc is passed to ~createThread~ or ~spawn~ and invoked indirectly; so the ~thread~ pragma implies ~procvar~.
 ** GC safety
@@ -1269,7 +1284,10 @@ The subset is in fact the full language with the following restrictions / change
 - Slices are optimized so that no copy is performed. This optimization is not yet performed for ordinary slices outside of a ~parallel~ section.
 * Generics
 
-Generics are Nim's means to parametrize procs, iterators or types with `type parameters`:idx:. Depending on context, the brackets are used either to introduce type parameters or to instantiate a generic proc, iterator or type.
+Generics are Nim's means to parametrize procs, iterators or types with
+`type parameters`:idx:. Depending on context, the brackets are used
+either to introduce type parameters or to instantiate a generic proc,
+iterator or type.
 
 The following example shows a generic binary tree can be modelled:
 
@@ -1836,11 +1854,22 @@ case readline(stdin):
 #+END_SRC
 
 
-The ~case~ statement is similar to the if statement, but it represents a multi-branch selection. The expression after the keyword ~case~ is evaluated and if its value is in a *slicelist* the corresponding statements (after the ~of~ keyword) are executed. If the value is not in any given *slicelist* the ~else~ part is executed. If there is no ~else~ part and not all possible values that ~expr~ can hold occur in a ~slicelist~, a static error occurs. This holds only for expressions of ordinal types. "All possible values" of ~expr~ are determined by ~expr~'s type. To suppress the static error an ~else~ part with an empty ~discard~ statement should be used.
+The ~case~ statement is similar to the if statement, but it represents
+a multi-branch selection. The expression after the keyword ~case~ is
+evaluated and if its value is in a *slicelist* the corresponding
+statements (after the ~of~ keyword) are executed. If the value is not
+in any given *slicelist* the ~else~ part is executed. If there is no
+~else~ part and not all possible values that ~expr~ can hold occur in
+a ~slicelist~, a static error occurs. This holds only for expressions
+of ordinal types. "All possible values" of ~expr~ are determined by
+~expr~'s type. To suppress the static error an ~else~ part with an
+empty ~discard~ statement should be used.
 
 For non ordinal types it is not possible to list every possible value and so these always require an ~else~ part.
 
-As a special semantic extension, an expression in an ~of~ branch of a case statement may evaluate to a set or array constructor; the set or array is then expanded into a list of its elements:
+As a special semantic extension, an expression in an ~of~ branch of a
+case statement may evaluate to a set or array constructor; the set or
+array is then expanded into a list of its elements:
 
 #+BEGIN_SRC nim
 const
@@ -3392,7 +3421,12 @@ This mechanism will be used by most data structures that support shared memory l
 The builtin ~deepCopy~ can even clone closures and their environments. See the documentation of `spawn`_ for details.
 * Pragmas
 
-Pragmas are Nim's method to give the compiler additional information / commands without introducing a massive number of new keywords. Pragmas are processed on the fly during semantic checking. Pragmas are enclosed in the special ~{.~ and ~.}~ curly brackets. Pragmas are also often used as a first implementation to play with a language feature before a nicer syntax to access the feature becomes available.
+Pragmas are Nim's method to give the compiler additional information /
+commands without introducing a massive number of new keywords. Pragmas
+are processed on the fly during semantic checking. Pragmas are
+enclosed in the special ~{.~ and ~.}~ curly brackets. Pragmas are also
+often used as a first implementation to play with a language feature
+before a nicer syntax to access the feature becomes available.
 ** deprecated pragma
 
 The deprecated pragma is used to mark a symbol as deprecated:
@@ -4717,7 +4751,8 @@ The size of the bool type is one byte.
 The character type is named ~char~ in Nim. Its size is one byte. Thus it cannot represent an UTF-8 character, but a part of it. The reason for this is efficiency: for the overwhelming majority of use-cases, the resulting programs will still handle UTF-8 properly as UTF-8 was specially designed for this. Another reason is that Nim can support ~array[char, int]~ or ~set[char]~ efficiently as many algorithms rely on this feature. The `Rune` type is used for Unicode characters, it can represent any Unicode character. ~Rune~ is declared in the [[unicode.html][unicode module]].
 ** Enumeration types
 
-Enumeration types define a new type whose values consist of the ones specified. The values are ordered. Example:
+Enumeration types define a new type whose values consist of the ones
+specified. The values are ordered. Example:
 
 #+BEGIN_SRC nim
 
@@ -5008,7 +5043,11 @@ type
 #+END_SRC
 
 
-Objects provide many features that tuples do not. Object provide inheritance and information hiding. Objects have access to their type at runtime, so that the ~of~ operator can be used to determine the object's type. The ~of~ operator is similar to the ~instanceof~ operator in Java.
+Objects provide many features that tuples do not. Object provide
+inheritance and information hiding. Objects have access to their type
+at runtime, so that the ~of~ operator can be used to determine the
+object's type. The ~of~ operator is similar to the ~instanceof~
+operator in Java.
 
 #+BEGIN_SRC nim
 type

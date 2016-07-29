@@ -104,7 +104,6 @@ proc Main()=
     if (mpath, module, ext).isFileExcluded:
       stderr.writeLine "Ignored: "&  [mpath , module & ext].joinPath
       continue
-
     var n_json: JsonNode
     try:
       n_json = nim_JsonWithTexi.parseNim(file)

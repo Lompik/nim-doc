@@ -15,7 +15,7 @@ install:
         curl -sSL -O "http://nim-lang.org/download/nim-$nim_version.tar.xz"
         tar xvJf "nim-$nim_version.tar.xz"
         cd "nim-$nim_version"
-        sh build.sh
+        LDFLAGS=-lrt sh build.sh
         bin/nim c koch
         ./koch boot -d:release
         cd ..
@@ -34,14 +34,14 @@ install:
 
 cache:
   directories:
-    - nim-0.13.0
+    - nim-0.14.2
     - pcre
 
 before_script:
-  - export PATH="$PWD/nim-0.13.0/bin${PATH:+:$PATH}"
+  - export PATH="$PWD/nim-0.14.2/bin${PATH:+:$PATH}"
 
 env:
-  - pcre_version=8.38 nim_version=0.13.0
+  - pcre_version=8.38 nim_version=0.14.2
 
 matrix:
   fast_finish: true

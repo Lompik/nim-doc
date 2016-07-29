@@ -33,9 +33,12 @@ import utils
 var include_dir*:string=""
 
 proc myFindFile(filename: string): string {.procvar.}=
-  let t = joinPath(include_dir,if startsWith(filename,"../"): filename.substr(3) else: filename) ## hardcoded path fix for nim's src
-  if existsFile(t): result = t
-  else: result = ""
+  result = filename
+  while startsWith(result,"../"):
+    result = result.substr(3)
+  let t = joinPath(include_dir, result) ## hardcoded path fix for nim's src
+  if not existsFile(t): result = ""
+
 
 proc isVisible(n: PNode): bool =
   result = false
